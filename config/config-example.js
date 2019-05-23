@@ -25,9 +25,14 @@ exports.sizeRequiredToEarn = 4;
 * X amount of timer passed **
 * after last message before *
 * user can earn exp  ********
-* default to 30 seconds *****
+* default to 15 seconds *****
 *****************************/
-exports.expTimer = 30000;
+exports.expTimer = 15000;
+
+/*
+* Poof - disable/Enable.
+*/
+exports.poof = true;
 
 /**
  * workers - the number of networking child processes to spawn
@@ -494,6 +499,7 @@ exports.grouplist = [
 		badge: true,
 		customcolor: true,
 		guild: true,
+		poof: true,
 	},
 	{
 		symbol: '#',
@@ -564,6 +570,7 @@ exports.grouplist = [
 		icon: true,
 		badge: true,
 		customcolor: true,
+		poof: true,
 	},
 	{
 		symbol: '%',
@@ -586,6 +593,8 @@ exports.grouplist = [
 		jeopardy: true,
 		joinbattle: true,
 		minigame: true,
+		// Impulse
+		poof: true,
 	},
 	{
 		symbol: '+',
