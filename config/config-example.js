@@ -10,6 +10,9 @@ exports.port = 8000;
 */
 exports.special = ['princesky'];
 
+/* serverIp used for custom avatars */
+exports.serverIp = "impulsereborn.herokuapp.com";
+
 /*
 * X amount of players needer to earn rewards from tournaments.
 */
