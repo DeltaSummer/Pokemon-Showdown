@@ -10,7 +10,7 @@ exports.commands = {
 		target = this.splitTarget(target, true);
 		let targetUser = this.targetUser;
 		let name = this.targetUsername;
-		let userid = toId(name);
+		let userid = toID(name);
 
 		if (!Users.isUsernameKnown(userid)) {
 			return this.errorReply(`User "${this.targetUsername}" is offline and unrecognized, and so can't be promoted.`);
@@ -40,7 +40,7 @@ exports.commands = {
 		}
 		if (!target) return this.parse("/help roomdefounder");
 		if (!this.can("makeroom")) return false;
-		let targetUser = toId(target);
+		let targetUser = toID(target);
 		if (room.founder !== targetUser) return this.errorReply(`${target} is not the room founder of ${room.title}.`);
 		room.founder = false;
 		room.chatRoomData.founder = false;
@@ -56,7 +56,7 @@ exports.commands = {
 		target = this.splitTarget(target, true);
 		let targetUser = this.targetUser;
 		let name = this.targetUsername;
-		let userid = toId(name);
+		let userid = toID(name);
 		if (!userid || userid === "") return this.errorReply(`User "${name}" does not exist.`);
 
 		if (room.auth[userid] !== "#") return this.errorReply(`User "${name}" is not a room owner.`);
@@ -109,7 +109,7 @@ exports.commands = {
 		target = this.splitTarget(target, true);
 		let targetUser = this.targetUser;
 		let name = this.targetUsername;
-		let userid = toId(name);
+		let userid = toID(name);
 		if (!userid || userid === "") return this.errorReply(`User "${name}" does not exist.`);
 
 		if (room.auth[userid] !== "&") return this.errorReply(`User "${name}" is not a room leader.`);
