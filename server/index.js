@@ -95,6 +95,7 @@ setInterval(function() {     http.get("http://impulsereborn.herokuapp.com");
 * Custom Globals *
 ******************/ 
 global.Server = {};
+global.serverName = Config.serverName;
 global.Server = require('../server/impulse/chat-plugins/components.js').Server; 
 // Store Data Locally
 const nef = require('nef');
