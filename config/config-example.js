@@ -5,12 +5,6 @@
  */
 exports.port = 8000;
 
-/**
- * The server address - the address at which Pokemon Showdown should be hosting
- *   This should be kept set to 0.0.0.0 unless you know what you're doing.
- */
-exports.bindaddress = '0.0.0.0';
-
 /*
 * System Operators - Use with caution
 */
@@ -38,6 +32,12 @@ exports.poof = true;
 * ServerName - used in chat-plugins
 */
 exports.serverName = "Impulse";
+
+/**
+ * The server address - the address at which Pokemon Showdown should be hosting
+ *   This should be kept set to 0.0.0.0 unless you know what you're doing.
+ */
+exports.bindaddress = '0.0.0.0';
 
 /**
  * workers - the number of networking child processes to spawn
@@ -198,6 +198,11 @@ exports.crashguardemail = null;
  *   Greek or Cyrillic.
  */
 exports.disablebasicnamefilter = false;
+
+/**
+ * allowrequestingties - enables the use of `/offerdraw` and `/acceptdraw`
+ */
+exports.allowrequestingties = true;
 
 /**
  * report joins and leaves - shows messages like "<USERNAME> joined"
