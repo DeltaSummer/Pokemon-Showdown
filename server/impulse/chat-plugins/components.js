@@ -5,7 +5,7 @@ const Autolinker = require("autolinker");
 
 Server.nameColor = function (name, bold, userGroup) {
 	let userGroupSymbol = `${Users.usergroups[toID(name)] ? `<strong><font color=#948A88>${Users.usergroups[toID(name)].substr(0, 1)}</font></strong>` : ``}`;
-	return `${(userGroup ? userGroupSymbol : ``)}${(bold ? `<strong>` : ``)}<font color=${Server.hashColor(name)}>${(Users(name) && Users(name).connected && Users.getExact(name) ? Chat.escapeHTML(Users.getExact(name).name) : Chat.escapeHTML(name))}</font>${(bold ? `</strong>` : ``)}`;
+	return `${(userGroup ? userGroupSymbol : ``)}${(bold ? `<strong>` : ``)}<font color=${global.hashColor(name)}>${(Users(name) && Users(name).connected && Users.getExact(name) ? Chat.escapeHTML(Users.getExact(name).name) : Chat.escapeHTML(name))}</font>${(bold ? `</strong>` : ``)}`;
 };
 
 // usage: Server.nameColor(user.name, true) for bold OR Server.nameColor(user.name, false) for non-bolded.

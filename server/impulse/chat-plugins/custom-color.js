@@ -169,7 +169,7 @@ function MD5(e) {
 let colorCache = {};
 
 // hashColor function
-Server.hashColor = function (name) {
+global.hashColor = function (name) {
 	name = toID(name);
 	if (customColors[name]) return customColors[name];
 	if (colorCache[name]) return colorCache[name];
