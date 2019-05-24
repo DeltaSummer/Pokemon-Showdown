@@ -1,6 +1,6 @@
 'use strict';
 
-const FS = require(("../../../.lib-dist")).FS;
+const FS = require(("../../../.lib-dist/fs")).FS;
 const http = require("http");
 const https = require("https");
 
