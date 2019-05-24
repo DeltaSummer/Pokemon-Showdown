@@ -34,6 +34,11 @@ exports.expTimer = 15000;
 */
 exports.poof = true;
 
+/*
+* ServerName - used in chat-plugins
+*/
+exports.serverName = "Impulse";
+
 /**
  * workers - the number of networking child processes to spawn
  *   This should be no greater than the number of threads available on your
