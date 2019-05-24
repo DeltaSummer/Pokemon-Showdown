@@ -21,6 +21,7 @@ const asciiMap = new Map([
 ]);
 
 let pmName = `~${Config.serverName} Server`;
+let regdateCache = {};
 
 Server.img = function (link, height, width) {
 	if (!link) return `<font color="maroon">ERROR : You must supply a link.</font>`;
