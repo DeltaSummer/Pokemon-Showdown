@@ -1,103 +1,52 @@
-"use strict";
+'use strict';
 
-let https = require("https");
-const Autolinker = require("autolinker");
+/** @type {typeof import('../../../../lib/fs').FS} */
+const FS = require(('../../../.lib-dist/fs')).FS;
+let https = require('https');
+const Autolinker = require('autolinker');
 
-Server.nameColor = function (name, bold, userGroup) {
-	let userGroupSymbol = `${Users.usergroups[toID(name)] ? `<strong><font color=#948A88>${Users.usergroups[toID(name)].substr(0, 1)}</font></strong>` : ``}`;
-	return `${(userGroup ? userGroupSymbol : ``)}${(bold ? `<strong>` : ``)}<font color=${global.hashColor(name)}>${(Users(name) && Users(name).connected && Users.getExact(name) ? Chat.escapeHTML(Users.getExact(name).name) : Chat.escapeHTML(name))}</font>${(bold ? `</strong>` : ``)}`;
-};
+let regdateCache = {};
 
-// usage: Server.nameColor(user.name, true) for bold OR Server.nameColor(user.name, false) for non-bolded.
+exports.Server = {
+	nameColor: function (name, bold, userGroup) {
+		let userGroupSymbol = Users.usergroups[toID(name)] ? '<b><font color=#948A88>' + Users.usergroups[toID(name)].substr(0, 1) + '</font></b>' : "";
+		return (userGroup ? userGroupSymbol : "") + (bold ? "<b>" : "") + "<font color=" + Server.hashColor(name) + ">" + (Users(name) && Users(name).connected && Users.getExact(name) ? Chat.escapeHTML(Users.getExact(name).name) : Chat.escapeHTML(name)) + "</font>" + (bold ? "</b>" : "");
+	},
+	// usage: Server.nameColor(user.name, true) for bold OR Server.nameColor(user.name, false) for non-bolded.
 
-Server.pmAll = function (message, pmName) {
-	pmName = (pmName ? pmName : `~${Config.serverName} Server`);
-	Users.users.forEach(curUser => {
-		curUser.send(`|pm|${pmName}|${curUser.getIdentity()}|${message}`);
-	});
-};
-
-// format: Server.pmAll("message", "person")
-//
-// usage: Server.pmAll("Event in Lobby in 5 minutes!", "~Server")
-//
-// this makes a PM from ~Server stating the message.
-
-Server.pmStaff = function (message, pmName, from) {
+	messageSeniorStaff: function (message, pmName, from) {
+		pmName = (pmName ? pmName : `${serverName} Server`);
+		from = (from ? ' (PM from ' + from + ')' : '');
+		Users.users.forEach(curUser => {
+			if (curUser.can('roomowner')) {
+				curUser.send('|pm|' + pmName + '|' + curUser.getIdentity() + '|' + message + from);
+			}
+		});
+	},
+	
+    pmStaff: function (message, pmName, from) {
 	pmName = (pmName ? pmName : `~${Config.serverName} Server`);
 	from = (from ? ` (PM from ${from})` : ``);
 	Users.users.forEach(curUser => {
 		if (!curUser.isStaff) return;
 		curUser.send(`|pm|${pmName}|${curUser.getIdentity()}|${message}`);
 	});
-};
-
-// format: Server.pmStaff("message", "person")
-//
-// usage: Server.pmStaff("Hey, Staff Meeting time", "~Server")
-//
-// this makes a PM from ~Server stating the message.
-
-Server.messageSeniorStaff = function (message, pmName, from) {
+	},
+	// format: Server.pmStaff("message", "person")
+   // usage: Server.pmStaff("Hey, Staff Meeting time", "~Server")
+   // this makes a PM from ~Server stating the message.
+   
+    pmAll: function (message, pmName) {
 	pmName = (pmName ? pmName : `~${Config.serverName} Server`);
-	from = (from ? ` (PM from ${from})` : ``);
 	Users.users.forEach(curUser => {
-		if (curUser.group === "~" || curUser.group === "☥" || curUser.group === "&") {
-			curUser.send(`|pm|${pmName}|${curUser.getIdentity()}|${message}${from}`);
-		}
+		curUser.send(`|pm|${pmName}|${curUser.getIdentity()}|${message}`);
 	});
-};
-
-// format: Server.messageSeniorStaff("message", "person")
-//
-// usage: Server.messageSeniorStaff("Mystifi is a confirmed user and they were banned from a public room. Assess the situation immediately.", "~Server")
-//
-// this makes a PM from ~Server stating the message.
-
-function devPM(user, message) {
-	let developers = Db.devs.keys();
-	for (const name of developers) {
-		const u = Users(name);
-		if (!(u && u.connected)) continue;
-		u.send(`|pm|${user}|${u.group}${u.name}|/raw ${message}\n<small style="font-style="italic">You can message DEV chat by using /devmsg [msg].</small>`);
-	}
-}
-Server.devPM = devPM;
-
-// Format: Server.devPM("person", "message")
-// Usage: Server.devPM("~Insist", "Hey, dev meeting in 10 minutes!");
-// This makes a PM from Insist stating the message.
-
-Server.parseMessage = function (message) {
-	if (message.substr(0, 5) === "/html") {
-		message = message.substr(5);
-		message = message.replace(/\_\_([^< ](?:[^<]*?[^< ])?)\_\_(?![^<]*?<\/a)/g, '<i>$1</i>'); // italics
-		message = message.replace(/\*\*([^< ](?:[^<]*?[^< ])?)\*\*/g, '<strong>$1</strong>'); // bold
-		message = message.replace(/\~\~([^< ](?:[^<]*?[^< ])?)\~\~/g, '<strike>$1</strike>'); // strikethrough
-		message = message.replace(/&lt;&lt;([a-z0-9-]+)&gt;&gt;/g, '&laquo;<a href="/$1" target="_blank">$1</a>&raquo;'); // <<roomid>>
-		message = Autolinker.link(message.replace(/&#x2f;/g, '/'), {stripPrefix: false, phone: false, twitter: false});
-		return message;
-	}
-	message = Chat.escapeHTML(message).replace(/&#x2f;/g, '/');
-	message = message.replace(/\_\_([^< ](?:[^<]*?[^< ])?)\_\_(?![^<]*?<\/a)/g, '<i>$1</i>'); // italics
-	message = message.replace(/\*\*([^< ](?:[^<]*?[^< ])?)\*\*/g, '<strong>$1</strong>'); // bold
-	message = message.replace(/\~\~([^< ](?:[^<]*?[^< ])?)\~\~/g, '<strike>$1</strike>'); // strikethrough
-	message = message.replace(/&lt;&lt;([a-z0-9-]+)&gt;&gt;/g, '&laquo;<a href="/$1" target="_blank">$1</a>&raquo;'); // <<roomid>>
-	message = Autolinker.link(message, {stripPrefix: false, phone: false, twitter: false});
-	return message;
-};
-
-Server.randomString = function (length) {
-	return Math.round((Math.pow(36, length + 1) - Math.random() * Math.pow(36, length))).toString(36).slice(1);
-};
-
-Server.reloadCSS = function () {
-	const cssPath = ' '; // This should be the server id if Config.serverid doesn't exist. Ex: 'serverid'
-	let req = https.get('https://play.pokemonshowdown.com/customcss.php?server=' + (Config.serverid || cssPath), () => {});
-	req.end();
-};
-
-Server.rankLadder = function (title, type, array, prop, group) {
+	},
+    // format: Server.pmAll("message", "person")
+    // usage: Server.pmAll("Event in Lobby in 5 minutes!", "~Server")
+   // this makes a PM from ~Server stating the message.
+   
+   rankLadder: function (title, type, array, prop, group) {
 	let groupHeader = group || 'Username';
 	const ladderTitle = '<center><h4><u>' + title + '</u></h4></center>';
 	const thStyle = 'class="rankladder-headers default-td" style="background: -moz-linear-gradient(#576468, #323A3C); background: -webkit-linear-gradient(#576468, #323A3C); background: -o-linear-gradient(#576468, #323A3C); background: linear-gradient(#576468, #323A3C); box-shadow: -1px -1px 2px rgba(0, 0, 0, 0.3) inset, 1px 1px 1px rgba(255, 255, 255, 0.7) inset;"';
@@ -133,4 +82,35 @@ Server.rankLadder = function (title, type, array, prop, group) {
 		}
 	}
 	return ladderTitle + tableTop + tableRows + tableBottom;
+	}, 
+	
+	randomString: function (length) {
+		return Math.round((Math.pow(36, length + 1) - Math.random() * Math.pow(36, length))).toString(36).slice(1);
+	},
+	
+	reloadCSS: function () {
+		const cssPath = 'impulse '; // This should be the serverid if Config.serverid doesn't exist. Ex: 'serverid'
+		let req = https.get('https://play.pokemonshowdown.com/customcss.php?server=' + (Config.serverid || cssPath), () => {});
+		req.end();
+	},
+	
+	/* eslint-disable no-useless-escape */
+	parseMessage: function (message) {
+		if (message.substr(0, 5) === "/html") {
+			message = message.substr(5);
+			message = message.replace(/\_\_([^< ](?:[^<]*?[^< ])?)\_\_(?![^<]*?<\/a)/g, '<i>$1</i>'); // italics
+			message = message.replace(/\*\*([^< ](?:[^<]*?[^< ])?)\*\*/g, '<b>$1</b>'); // bold
+			message = message.replace(/\~\~([^< ](?:[^<]*?[^< ])?)\~\~/g, '<strike>$1</strike>'); // strikethrough
+			message = message.replace(/&lt;&lt;([a-z0-9-]+)&gt;&gt;/g, '&laquo;<a href="/$1" target="_blank">$1</a>&raquo;'); // <<roomid>>
+			message = Autolinker.link(message.replace(/&#x2f;/g, '/'), {stripPrefix: false, phone: false, twitter: false});
+			return message;
+		}
+		message = Chat.escapeHTML(message).replace(/&#x2f;/g, '/');
+		message = message.replace(/\_\_([^< ](?:[^<]*?[^< ])?)\_\_(?![^<]*?<\/a)/g, '<i>$1</i>'); // italics
+		message = message.replace(/\*\*([^< ](?:[^<]*?[^< ])?)\*\*/g, '<b>$1</b>'); // bold
+		message = message.replace(/\~\~([^< ](?:[^<]*?[^< ])?)\~\~/g, '<strike>$1</strike>'); // strikethrough
+		message = message.replace(/&lt;&lt;([a-z0-9-]+)&gt;&gt;/g, '&laquo;<a href="/$1" target="_blank">$1</a>&raquo;'); // <<roomid>>
+		message = Autolinker.link(message, {stripPrefix: false, phone: false, twitter: false});
+		return message;
+	},
 };
