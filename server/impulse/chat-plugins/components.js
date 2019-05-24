@@ -77,35 +77,6 @@ exports.Server = {
 		req.end();
 	},
 	
-	regdate: function (target, callback) {
-		target = toID(target);
-		if (regdateCache[target]) return callback(regdateCache[target]);
-		let req = https.get('https://pokemonshowdown.com/users/' + target + '.json', res => {
-			let data = '';
-			res.on('data', chunk => {
-				data += chunk;
-			}).on('end', () => {
-				try {
-					data = JSON.parse(data);
-				} catch (e) {
-					return callback(false);
-				}
-				let date = data['registertime'];
-				if (date !== 0 && date.toString().length < 13) {
-					while (date.toString().length < 13) {
-						date = Number(date.toString() + '0');
-					}
-				}
-				if (date !== 0) {
-					regdateCache[target] = date;
-					saveRegdateCache();
-				}
-				callback((date === 0 ? false : date));
-			});
-		});
-		req.end();
-	},
-
 	/* eslint-disable no-useless-escape */
 	parseMessage: function (message) {
 		if (message.substr(0, 5) === "/html") {
@@ -125,66 +96,4 @@ exports.Server = {
 		message = Autolinker.link(message, {stripPrefix: false, phone: false, twitter: false});
 		return message;
 	},
-	/* eslint-enable no-useless-escape */
-
-	randomString: function (length) {
-		return Math.round((Math.pow(36, length + 1) - Math.random() * Math.pow(36, length))).toString(36).slice(1);
-	},
-
-	reloadCSS: function () {
-		const cssPath = 'impulse'; // This should be the server id if Config.serverid doesn't exist. Ex: 'serverid'
-		let req = https.get('https://play.pokemonshowdown.com/customcss.php?server=' + (Config.serverid || cssPath), () => {});
-		req.end();
-	},
-	
-	rankLadder: function (title, type, array, prop, group) {
-	let groupHeader = group || 'Username';
-	const ladderTitle = '<center><h4><u>' + title + '</u></h4></center>';
-	const thStyle = 'class="rankladder-headers default-td" style="background: -moz-linear-gradient(#576468, #323A3C); background: -webkit-linear-gradient(#576468, #323A3C); background: -o-linear-gradient(#576468, #323A3C); background: linear-gradient(#576468, #323A3C); box-shadow: -1px -1px 2px rgba(0, 0, 0, 0.3) inset, 1px 1px 1px rgba(255, 255, 255, 0.7) inset;"';
-	const tableTop = '<div style="max-height: 310px; overflow-y: scroll;">' +
-		'<table style="max-width: 100%; border-collapse: collapse;">' +
-		'<tr>' +
-			'<th ' + thStyle + '>Rank</th>' +
-			'<th ' + thStyle + '>' + groupHeader + '</th>' +
-			'<th ' + thStyle + '>' + type + '</th>' +
-		'</tr>';
-	const tableBottom = '</table></div>';
-	const tdStyle = 'class="rankladder-tds default-td" style="box-shadow: -1px -1px 2px rgba(0, 0, 0, 0.3) inset, 1px 1px 1px rgba(255, 255, 255, 0.7) inset;"';
-	const first = 'class="first default-td important" style="box-shadow: -1px -1px 2px rgba(0, 0, 0, 0.3) inset, 1px 1px 1px rgba(255, 255, 255, 0.7) inset;"';
-	const second = 'class="second default-td important" style="box-shadow: -1px -1px 2px rgba(0, 0, 0, 0.3) inset, 1px 1px 1px rgba(255, 255, 255, 0.7) inset;"';
-	const third = 'class="third default-td important" style="box-shadow: -1px -1px 2px rgba(0, 0, 0, 0.3) inset, 1px 1px 1px rgba(255, 255, 255, 0.7) inset;"';
-	let midColumn;
-
-	let tableRows = '';
-
-	for (let i = 0; i < array.length; i++) {
-		if (i === 0) {
-			midColumn = '</td><td ' + first + '>';
-			tableRows += '<tr><td ' + first + '>' + (i + 1) + midColumn + Server.nameColor(array[i].name, true) + midColumn + array[i][prop] + '</td></tr>';
-		} else if (i === 1) {
-			midColumn = '</td><td ' + second + '>';
-			tableRows += '<tr><td ' + second + '>' + (i + 1) + midColumn + Server.nameColor(array[i].name, true) + midColumn + array[i][prop] + '</td></tr>';
-		} else if (i === 2) {
-			midColumn = '</td><td ' + third + '>';
-			tableRows += '<tr><td ' + third + '>' + (i + 1) + midColumn + Server.nameColor(array[i].name, true) + midColumn + array[i][prop] + '</td></tr>';
-		} else {
-			midColumn = '</td><td ' + tdStyle + '>';
-			tableRows += '<tr><td ' + tdStyle + '>' + (i + 1) + midColumn + Server.nameColor(array[i].name, true) + midColumn + array[i][prop] + '</td></tr>';
-		}
-	}
-	return ladderTitle + tableTop + tableRows + tableBottom;
-	},
-
 };
-
-// last two functions needed to make sure Server.regdate() fully works
-function loadRegdateCache() {
-	try {
-		regdateCache = JSON.parse(FS('config/regdate.json').readIfExistsSync());
-	} catch (e) {}
-}
-loadRegdateCache();
-
-function saveRegdateCache() {
-	FS('config/regdate.json').writeSync(JSON.stringify(regdateCache));
-}

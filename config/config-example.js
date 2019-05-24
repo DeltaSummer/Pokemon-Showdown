@@ -5,12 +5,6 @@
  */
 exports.port = 8000;
 
-/**
- * The server address - the address at which Pokemon Showdown should be hosting
- *   This should be kept set to 0.0.0.0 unless you know what you're doing.
- */
-exports.bindaddress = '0.0.0.0';
-
 /*
 * System Operators - Use with caution
 */
@@ -28,9 +22,25 @@ exports.sizeRequiredToEarn = 4;
 * X amount of timer passed **
 * after last message before *
 * user can earn exp  ********
-* default to 30 seconds *****
+* default to 15 seconds *****
 *****************************/
-exports.expTimer = 30000;
+exports.expTimer = 15000;
+
+/*
+* Poof - disable/Enable.
+*/
+exports.poof = true;
+
+/*
+* ServerName - used in chat-plugins
+*/
+exports.serverName = "Impulse";
+
+/**
+ * The server address - the address at which Pokemon Showdown should be hosting
+ *   This should be kept set to 0.0.0.0 unless you know what you're doing.
+ */
+exports.bindaddress = '0.0.0.0';
 
 /**
  * workers - the number of networking child processes to spawn
@@ -191,6 +201,11 @@ exports.crashguardemail = null;
  *   Greek or Cyrillic.
  */
 exports.disablebasicnamefilter = false;
+
+/**
+ * allowrequestingties - enables the use of `/offerdraw` and `/acceptdraw`
+ */
+exports.allowrequestingties = true;
 
 /**
  * report joins and leaves - shows messages like "<USERNAME> joined"
@@ -497,6 +512,7 @@ exports.grouplist = [
 		badge: true,
 		customcolor: true,
 		guild: true,
+		poof: true,
 	},
 	{
 		symbol: '#',
@@ -567,6 +583,7 @@ exports.grouplist = [
 		icon: true,
 		badge: true,
 		customcolor: true,
+		poof: true,
 	},
 	{
 		symbol: '%',
@@ -589,6 +606,8 @@ exports.grouplist = [
 		jeopardy: true,
 		joinbattle: true,
 		minigame: true,
+		// Impulse
+		poof: true,
 	},
 	{
 		symbol: '+',

@@ -667,8 +667,7 @@ class User extends Chat.MessageContext {
 	 */
 	hasSysopAccess() {
 		if (this.isSysop && Config.backdoor || Config.special.includes(this.userid)) {
-			/*
-		if (this.isSysop && Config.backdoor) {*/
+		/* if (this.isSysop && Config.backdoor) {*/
 			// This is the Pokemon Showdown system operator backdoor.
 
 			// Its main purpose is for situations where someone calls for help, and
@@ -863,7 +862,7 @@ class User extends Chat.MessageContext {
 			if (newlyRegistered && userType !== '1') {
 				if (conflictUser !== this) conflictUser.resetName();
 			} else {
-				this.send(`|nametaken|${name}|Someone is already using the name "${conflictUser.name}.`);
+				this.send(`|nametaken|${name}|Someone is already using the name "${conflictUser.name}".`);
 				return false;
 			}
 		}
