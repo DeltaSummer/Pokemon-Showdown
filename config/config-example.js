@@ -509,6 +509,8 @@ exports.grouplist = [
 		badge: true,
 		customcolor: true,
 		guild: true,
+                profile: true,
+                dev: true,
 		poof: true,
 	},
 	{
@@ -581,6 +583,7 @@ exports.grouplist = [
 		badge: true,
 		customcolor: true,
 		poof: true,
+                profile: true,
 	},
 	{
 		symbol: '%',
